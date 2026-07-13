@@ -1,0 +1,16 @@
+* text=auto
+* whitespace=-blank-at-eof
+*.c text eol=lf
+*.h text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.uvprojx text eol=crlf
+*.s text eol=crlf
+*.bin binary
+*.hex text eol=crlf
+*.pdf binary
+
+# 厂商 BSP 保持上游原貌，不把历史尾随空格计为本项目问题。
+vendor/** -whitespace

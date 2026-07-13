@@ -1,0 +1,36 @@
+name: 缺陷报告
+description: 报告可复现的固件、资源或工具问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: hardware
+    attributes:
+      label: 硬件与版本
+      description: MCU、Flash、LCD、PCB 版本、提交或 Release 版本
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果和错误颜色
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 构建日志或校验报告
+      render: shell
+

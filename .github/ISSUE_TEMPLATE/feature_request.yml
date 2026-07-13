@@ -1,0 +1,22 @@
+name: 功能建议
+description: 提议新的硬件、资源格式或播放能力
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 硬件和兼容性约束
+

@@ -1,0 +1,32 @@
+# Keil 构建输出和用户状态
+firmware/KEIL/obj/
+firmware/KEIL/lst/
+firmware/KEIL/*.uvguix.*
+firmware/KEIL/*.uvgui.*
+firmware/KEIL/*.bak
+firmware/KEIL/Nu_Link_Driver.ini
+firmware/KEIL/build_log*.txt
+
+# 本地原始素材：禁止默认提交
+assets/input/
+assets/private/
+素材/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 编辑器和操作系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.user
+
+# 临时验证输出
+build/
+tmp/
+temp/
+verification_*/

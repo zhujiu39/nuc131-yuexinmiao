@@ -1,0 +1,22 @@
+name: Resource check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Check Python syntax
+        run: python -m py_compile tools/generate_animation_pack.py tools/validate_animation_pack.py
+      - name: Validate bundled GD25Q64 image
+        run: >-
+          python tools/validate_animation_pack.py
+          --pack release/GD25Q64/release_yuexinmiao_animation_pack.bin
+          --image release/GD25Q64/release_yuexinmiao_gd25q64_8MiB.bin
+          --report /tmp/validation_report.json
