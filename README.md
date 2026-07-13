@@ -1,94 +1,141 @@
-# yuexinmiao：NUC131 + GD25Q64 动画播放器
+<h1 align="center">yuexinmiao</h1>
 
-这是一个经过实物验证的裸机动画播放项目：NUC131SD2AE 从 GD25Q64 SPI NOR Flash
-连续读取差分压缩的 RGB565 动画，通过 GPIO 模拟串行接口驱动 128×128 LCD，以
-30 fps 循环播放。
+<p align="center">
+  基于 NUC131 与 GD25Q64 的 128×128 RGB565 裸机动画播放器
+</p>
 
-## 特性
+<p align="center">
+  <a href="README_EN.md">English</a> ·
+  <a href="docs/HARDWARE.zh-CN.md">硬件说明</a> ·
+  <a href="docs/FLASHING.zh-CN.md">烧录指南</a> ·
+  <a href="docs/RESOURCE_FORMAT.zh-CN.md">资源格式</a>
+</p>
 
-- NUC131SD2AE，Cortex-M0，48 MHz。
-- GD25Q64，SPI0 Mode 0、8 位、10 MHz。
-- 128×128 RGB565 LCD，GPIO 模拟串行写屏。
-- YXMV 自定义资源包：逐帧变化矩形 + PackBits RLE。
-- 完整保留 1210 帧、30 fps 和原始时间轴，不通过丢帧掩盖性能不足。
-- 上电校验 Flash JEDEC ID、资源头 CRC32 和索引 CRC32。
-- 提供 Python 资源生成器、完整镜像校验器、MCU HEX/BIN 和 GD25Q64 8 MiB 镜像。
-- Keil ARMCC 5 实际编译：`0 Error(s), 0 Warning(s)`。
-- 已完成目标板实物烧录和播放验证。
+<p align="center">
+  <img alt="Hardware Verified" src="https://img.shields.io/badge/hardware-verified-brightgreen">
+  <img alt="Keil Build" src="https://img.shields.io/badge/Keil-0%20errors%20%7C%200%20warnings-brightgreen">
+  <img alt="NUC131" src="https://img.shields.io/badge/MCU-NUC131SD2AE-blue">
+  <img alt="GD25Q64" src="https://img.shields.io/badge/Flash-GD25Q64%208%20MiB-orange">
+  <img alt="30 FPS" src="https://img.shields.io/badge/playback-30%20fps-blueviolet">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-yellow"></a>
+</p>
 
-## 仓库结构
+`yuexinmiao` 是一个经过实物验证的 MCU 裸机动画播放项目。NUC131SD2AE 从
+GD25Q64 SPI NOR Flash 连续读取 YXMV 差分压缩资源，实时解码 RGB565 帧，并通过
+GPIO 模拟串行接口驱动 128×128 LCD，以固定 30 fps 循环播放。
 
-```text
-firmware/                  NUC131 应用、驱动、Keil 工程及资源头文件
-tools/                     MP4 资源生成器与 YXMV/GD25Q64 校验器
-release/MCU/               可直接烧录的 NUC131 HEX/BIN
-release/GD25Q64/           资源包、完整 8 MiB 镜像、manifest 和校验报告
-vendor/Nuvoton/NUC131_BSP/ Keil 编译所需的最小 Nuvoton BSP 子集
-docs/                      硬件连接、资源格式和烧录说明
-assets/                    原始素材放置说明；仓库不包含原始猫咪 MP4
+项目同时提供完整 Keil 工程、可直接烧录的 MCU/Flash 固件、资源生成工具、离线校验
+工具和资源格式文档。原始猫咪 MP4 与预览视频不在本仓库中。
+
+## 项目亮点
+
+- **实物验证**：NUC131、GD25Q64 与 LCD 的完整播放链路已经在目标板验证通过。
+- **速度不变**：固定保留 1210 帧和 30 fps，不依靠丢帧改变动画节奏。
+- **面向小型 MCU**：使用逐帧变化矩形与 PackBits RLE，MCU 无需保存完整视频帧集。
+- **启动自检**：校验 Flash JEDEC ID、资源头、数据边界和 CRC32。
+- **错误可见**：用不同纯色画面区分 Flash、资源、解码和刷新积压故障。
+- **交付完整**：仓库内同时包含源码、Keil 工程、发布固件、校验报告和 Python 工具。
+
+## 实测配置
+
+| 项目 | 结果 |
+| --- | --- |
+| MCU | Nuvoton NUC131SD2AE，Arm Cortex-M0，48 MHz |
+| 外部 Flash | GD25Q64，8 MiB，SPI0 Mode 0，10 MHz |
+| LCD | 128×128，RGB565，GPIO 模拟串行写屏 |
+| 动画 | 1210 帧，30 fps，约 40.33 秒循环 |
+| 资源格式 | YXMV v1，变化矩形 + PackBits RLE |
+| 动画数据包 | 2,289,920 字节 |
+| GD25Q64 镜像 | 8,388,608 字节，使用率 27.298% |
+| MCU 构建 | Code=5056，RO-data=304，RW-data=60，ZI-data=1028 |
+| Keil 结果 | 0 Error(s)，0 Warning(s) |
+
+完整离线解码结果见
+[`release/GD25Q64/validation_report.json`](release/GD25Q64/validation_report.json)。
+
+## 工作原理
+
+```mermaid
+flowchart LR
+    A["绿幕视频<br/>不随仓库发布"] --> B["Python 资源生成器<br/>抠绿、缩放、RGB565"]
+    B --> C["YXMV 动画数据包<br/>变化矩形 + PackBits RLE"]
+    C --> D["GD25Q64<br/>8 MiB SPI Flash"]
+    D --> E["NUC131<br/>读取、校验、实时解码"]
+    E --> F["128×128 LCD<br/>30 fps 循环播放"]
 ```
 
-## 硬件连接
-
-### LCD
-
-| 信号 | NUC131 引脚 | 说明 |
-| --- | --- | --- |
-| SCL | PB15 | GPIO 模拟串行时钟 |
-| SDA | PC14 | GPIO 模拟串行数据，只写 |
-| CS | PC15 | 低有效 |
-| DC/RS | PC7 | 0=命令，1=数据 |
-| RST | PA7 | 低有效硬复位 |
-| LED | PC6 | 高有效背光 |
-
-### GD25Q64
-
-| 信号 | NUC131 引脚 | 说明 |
-| --- | --- | --- |
-| CS# | PC0 | SPI0_SS0 |
-| SCLK | PC1 | SPI0_CLK |
-| SO | PC2 | SPI0_MISO0 |
-| SI | PC3 | SPI0_MOSI0 |
-
-详细约束见 [硬件说明](docs/HARDWARE.zh-CN.md)。
+TIMER0 只负责产生 30 Hz 帧事件，Flash 读取、RLE 解码和 LCD 刷新均在主循环完成。
+如果事件连续积压，固件进入青屏错误，而不是静默丢帧导致动画加速或减速。
 
 ## 快速开始
 
-### 1. 烧录外部 Flash
+不修改动画内容时，只需分别烧录两个配套文件。
 
-将下面的完整镜像从 GD25Q64 地址 `0x000000` 写入全部 8,388,608 字节，并读回校验：
+### 1. 烧录 GD25Q64
+
+将完整镜像从外部 Flash 地址 `0x000000` 写入，执行整片擦除、写入和读回校验：
 
 ```text
 release/GD25Q64/release_yuexinmiao_gd25q64_8MiB.bin
 ```
 
-### 2. 烧录 MCU
+| 参数 | 数值 |
+| --- | --- |
+| 起始地址 | `0x000000` |
+| 写入长度 | 8,388,608 字节 |
+| SHA-256 | `16D314AFA7C8ABD02B2C1785508F3B3C23EEA64178A7AE9C3B0323A44E12105A` |
 
-将下面的文件写入 NUC131SD2AE APROM：
+### 2. 烧录 NUC131
+
+将下面的 HEX 文件写入 NUC131SD2AE APROM：
 
 ```text
 release/MCU/release_yuexinmiao.hex
 ```
 
-两个文件必须配套使用。烧录和状态颜色说明见 [烧录指南](docs/FLASHING.zh-CN.md)。
+| 参数 | 数值 |
+| --- | --- |
+| 目标区域 | APROM |
+| SHA-256 | `DA5D2E0665D18C07A70C146DF9B20E2C8D0562842AA9D5E01327378DA5DA263B` |
 
-## Keil 编译
+> [!IMPORTANT]
+> MCU 固件和 GD25Q64 镜像必须配套使用。不要把 8 MiB Flash BIN 写入 MCU，也不要
+> 把 MCU HEX 写入外部 Flash。
 
-环境：Keil MDK 5、ARM Compiler 5.06 update 6。
+详细步骤见[烧录指南](docs/FLASHING.zh-CN.md)。
 
-打开：
+## 上电状态
+
+| 屏幕状态 | 含义 |
+| --- | --- |
+| 正常动画 | Flash、资源、解码和显示链路正常 |
+| 红屏 | Flash 通信失败或 JEDEC ID 不匹配 |
+| 洋红屏 | 资源头、尺寸、帧率或索引 CRC 错误 |
+| 黄屏 | 播放过程中发生 Flash、解码或 LCD 写入错误 |
+| 青屏 | 帧事件连续积压，系统无法维持 30 fps |
+
+## 从源码构建 MCU 固件
+
+推荐环境：
+
+- Keil MDK 5
+- ARM Compiler 5.06 update 6
+- Nuvoton Nu-Link（仅烧录 MCU 时需要）
+
+打开工程：
 
 ```text
 firmware/KEIL/yuexinmiao.uvprojx
 ```
 
-工程已改为相对引用仓库内 `vendor/Nuvoton/NUC131_BSP`，不依赖原开发电脑上的
-绝对路径。Nu-Link 的本机探针配置和序列信息没有进入仓库。
+工程使用仓库内的最小 Nuvoton BSP 子集，不依赖原开发电脑的绝对路径。本机 Nu-Link
+探针配置和序列信息已排除。已验证的完整构建日志位于
+[`release/MCU/build_log.txt`](release/MCU/build_log.txt)。
 
-## 重新生成资源
+## 生成自己的动画资源
 
-依赖 Python 3.9+、`ffmpeg` 和 `ffprobe`。把自己拥有公开或使用权的绿幕 MP4 放到
-`assets/input/`，然后执行：
+依赖 Python 3.9+、`ffmpeg` 和 `ffprobe`。将自己拥有合法使用权的绿幕 MP4 放入
+已被 Git 忽略的 `assets/input/`，然后执行：
 
 ```powershell
 python tools/generate_animation_pack.py `
@@ -96,9 +143,10 @@ python tools/generate_animation_pack.py `
   --output-dir build/resources
 ```
 
-当前生成器锁定 30 fps 和 1210 帧，以防误改已经验证的动画速度。生成新资源后，
-将 `build/resources/animation_resource.h` 复制到 `firmware/Resources/generated/`，同步重新
-编译 MCU 固件，并使用校验器检查新镜像：
+生成器完成绿幕抠除、等比例缩放、RGB565 转换、差分矩形提取和 PackBits RLE 编码。
+当前工具锁定 30 fps 与 1210 帧，用于防止误改已经上板验证的动画速度。
+
+生成完成后运行离线校验：
 
 ```powershell
 python tools/validate_animation_pack.py `
@@ -107,13 +155,54 @@ python tools/validate_animation_pack.py `
   --report build/resources/validation_report.json
 ```
 
-## 素材范围
+若资源头文件发生变化，还需要同步更新
+`firmware/Resources/generated/animation_resource.h` 并重新编译 MCU 固件。资源二进制
+布局和 CRC 规则见[资源格式说明](docs/RESOURCE_FORMAT.zh-CN.md)。
 
-原始猫咪 MP4、灰色预览文件以及开发过程中的素材目录没有进入本仓库。
-仓库保留用户明确要求发布的 GD25Q64 资源固件和生成清单。资源二进制的授权范围
-与源代码许可证分开，详见 [第三方及资源声明](THIRD_PARTY_NOTICES.md)。
+## 仓库结构
 
-## 许可证
+```text
+.
+├── firmware/
+│   ├── App/                 播放调度、故障处理和应用入口
+│   ├── Drivers/             GD25Q64 与 LCD 驱动
+│   ├── KEIL/                可直接打开的 Keil 工程
+│   └── Resources/           固件使用的资源格式常量
+├── tools/                   动画资源生成器和完整镜像校验器
+├── release/
+│   ├── MCU/                 NUC131 HEX、BIN 与构建日志
+│   └── GD25Q64/             资源包、8 MiB 镜像、manifest 与校验报告
+├── vendor/                  构建所需的最小 Nuvoton BSP/CMSIS 子集
+├── docs/                    硬件、烧录、资源格式和发布说明
+└── assets/                  本地素材放置说明，不包含原始视频
+```
 
-项目原创源代码使用 [MIT License](LICENSE)。Nuvoton BSP 和 ARM CMSIS 保留各自原始
-许可证及版权声明；资源二进制不自动适用 MIT License。
+## 文档
+
+- [硬件连接与已验证参数](docs/HARDWARE.zh-CN.md)
+- [MCU 和 GD25Q64 烧录指南](docs/FLASHING.zh-CN.md)
+- [YXMV 资源格式与校验规则](docs/RESOURCE_FORMAT.zh-CN.md)
+- [GitHub 发布流程](docs/PUBLISHING.zh-CN.md)
+- [开源包检查记录](PACKAGE_CHECKS.md)
+- [版本发布说明](RELEASE_NOTES_v1.0.0.md)
+
+## 贡献
+
+欢迎提交问题、改进文档或适配其他屏幕和 SPI NOR Flash。修改引脚、LCD 初始化序列、
+帧率、资源格式或 Flash 分区前，请说明目标硬件并附上可复现的验证结果。贡献流程见
+[`CONTRIBUTING.md`](CONTRIBUTING.md)。
+
+## 许可证与素材边界
+
+项目原创源代码使用 [MIT License](LICENSE)。Nuvoton BSP 与 Arm CMSIS 保留各自的
+许可证和版权声明。
+
+原始猫咪 MP4、灰色预览视频和开发过程素材没有进入仓库。`release/GD25Q64/` 中的
+资源固件属于素材转换结果，不自动适用 MIT License；再次分发前应确认相应素材权利。
+详见[第三方及资源声明](THIRD_PARTY_NOTICES.md)。
+
+## 致谢
+
+- [Nuvoton](https://www.nuvoton.com/) 提供 NUC131 BSP 与芯片支持。
+- [Arm CMSIS](https://www.arm.com/technologies/cmsis) 提供 Cortex-M 软件接口基础。
+- [Ultralytics YOLOv5](https://github.com/ultralytics/yolov5) README 为本项目首页的信息架构提供了参考。
