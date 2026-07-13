@@ -4,7 +4,7 @@
 README、LICENSE 或 `.gitignore`，然后在本目录执行：
 
 ```powershell
-git remote add origin https://github.com/zhujiu39/nuc131-月薪喵.git
+git remote add origin https://github.com/zhujiu39/nuc131-yuexinmiao.git
 git push -u origin main
 ```
 
