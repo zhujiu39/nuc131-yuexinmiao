@@ -1,4 +1,6 @@
-# yuexinmiao: NUC131 + GD25Q64 Animation Player
+# nuc131-月薪喵: NUC131 + GD25Q64 Animation Player
+
+Author and maintainer: [@zhujiu39](https://github.com/zhujiu39)
 
 An open-source bare-metal animation player validated on real hardware. A NUC131SD2AE reads
 delta-compressed RGB565 frames from a GD25Q64 SPI NOR Flash and streams them to a 128x128 LCD

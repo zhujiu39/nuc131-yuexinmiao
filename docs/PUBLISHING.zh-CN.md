@@ -4,14 +4,14 @@
 README、LICENSE 或 `.gitignore`，然后在本目录执行：
 
 ```powershell
-git remote add origin https://github.com/你的用户名/yuexinmiao-nuc131-gd25q64.git
+git remote add origin https://github.com/zhujiu39/nuc131-月薪喵.git
 git push -u origin main
 ```
 
 发布 v1.0.0 标签：
 
 ```powershell
-git tag -a v1.0.0 -m "yuexinmiao v1.0.0"
+git tag -a v1.0.0 -m "nuc131-月薪喵 v1.0.0"
 git push origin v1.0.0
 ```
 
@@ -23,7 +23,7 @@ gh release create v1.0.0 `
   release/MCU/release_yuexinmiao.bin `
   release/GD25Q64/release_yuexinmiao_gd25q64_8MiB.bin `
   release/GD25Q64/release_yuexinmiao_animation_pack.bin `
-  --title "yuexinmiao v1.0.0" `
+  --title "nuc131-月薪喵 v1.0.0" `
   --notes-file RELEASE_NOTES_v1.0.0.md
 ```
 

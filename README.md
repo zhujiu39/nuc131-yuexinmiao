@@ -1,10 +1,11 @@
-<h1 align="center">yuexinmiao</h1>
+<h1 align="center">nuc131-月薪喵</h1>
 
 <p align="center">
   基于 NUC131 与 GD25Q64 的 128×128 RGB565 裸机动画播放器
 </p>
 
 <p align="center">
+  作者：<a href="https://github.com/zhujiu39">@zhujiu39</a><br>
   <a href="README_EN.md">English</a> ·
   <a href="docs/HARDWARE.zh-CN.md">硬件说明</a> ·
   <a href="docs/FLASHING.zh-CN.md">烧录指南</a> ·
@@ -20,7 +21,7 @@
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-yellow"></a>
 </p>
 
-`yuexinmiao` 是一个经过实物验证的 MCU 裸机动画播放项目。NUC131SD2AE 从
+`nuc131-月薪喵` 是一个经过实物验证的 MCU 裸机动画播放项目。NUC131SD2AE 从
 GD25Q64 SPI NOR Flash 连续读取 YXMV 差分压缩资源，实时解码 RGB565 帧，并通过
 GPIO 模拟串行接口驱动 128×128 LCD，以固定 30 fps 循环播放。
 
@@ -196,6 +197,7 @@ python tools/validate_animation_pack.py `
 - [GitHub 发布流程](docs/PUBLISHING.zh-CN.md)
 - [开源包检查记录](PACKAGE_CHECKS.md)
 - [版本发布说明](RELEASE_NOTES_v1.0.0.md)
+- [作者与维护者](AUTHORS.md)
 
 ## 贡献
 
@@ -217,3 +219,7 @@ python tools/validate_animation_pack.py `
 - [Nuvoton](https://www.nuvoton.com/) 提供 NUC131 BSP 与芯片支持。
 - [Arm CMSIS](https://www.arm.com/technologies/cmsis) 提供 Cortex-M 软件接口基础。
 - [Ultralytics YOLOv5](https://github.com/ultralytics/yolov5) README 为本项目首页的信息架构提供了参考。
+
+## 作者
+
+本项目由 [@zhujiu39](https://github.com/zhujiu39) 创建并维护。
