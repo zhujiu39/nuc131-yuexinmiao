@@ -4,6 +4,14 @@ An open-source bare-metal animation player validated on real hardware. A NUC131S
 delta-compressed RGB565 frames from a GD25Q64 SPI NOR Flash and streams them to a 128x128 LCD
 at 30 fps through a GPIO-based serial interface.
 
+## Hardware validation
+
+[![NUC131 and GD25Q64 hardware validation](docs/media/hardware-validation.jpg)](docs/media/hardware-validation.mp4)
+
+The photo shows the verified target board. Click the image to play the 10.8-second hardware demo.
+The public video is an H.264 MP4 with its audio track and capture metadata removed. It is a hardware
+validation record, not the original cat animation source.
+
 ## Highlights
 
 - NUC131SD2AE Cortex-M0 at 48 MHz.
@@ -29,4 +37,3 @@ The original cat MP4 is intentionally excluded. The generated Flash image is inc
 by the repository owner. See [third-party notices](THIRD_PARTY_NOTICES.md) before redistribution.
 
 Original project code is MIT-licensed. Nuvoton BSP and ARM CMSIS files retain their upstream terms.
-

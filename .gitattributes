@@ -9,6 +9,8 @@
 *.uvprojx text eol=crlf
 *.s text eol=crlf
 *.bin binary
+*.jpg binary
+*.mp4 binary
 *.hex text eol=crlf
 *.pdf binary
 

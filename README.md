@@ -27,6 +27,15 @@ GPIO 模拟串行接口驱动 128×128 LCD，以固定 30 fps 循环播放。
 项目同时提供完整 Keil 工程、可直接烧录的 MCU/Flash 固件、资源生成工具、离线校验
 工具和资源格式文档。原始猫咪 MP4 与预览视频不在本仓库中。
 
+## 实物验证
+
+[![NUC131 与 GD25Q64 动画播放实物验证](docs/media/hardware-validation.jpg)](docs/media/hardware-validation.mp4)
+
+上图为目标板实际运行效果。点击图片或
+[播放 10.8 秒实拍视频](docs/media/hardware-validation.mp4)，可查看猫咪动画在 128×128
+LCD 上连续播放的效果。公开版本已转换为兼容浏览器的 H.264 MP4，并移除录音轨和
+拍摄元数据；它是硬件验证记录，不是用于生成 Flash 固件的猫咪原素材。
+
 ## 项目亮点
 
 - **实物验证**：NUC131、GD25Q64 与 LCD 的完整播放链路已经在目标板验证通过。
@@ -173,7 +182,9 @@ python tools/validate_animation_pack.py `
 │   ├── MCU/                 NUC131 HEX、BIN 与构建日志
 │   └── GD25Q64/             资源包、8 MiB 镜像、manifest 与校验报告
 ├── vendor/                  构建所需的最小 Nuvoton BSP/CMSIS 子集
-├── docs/                    硬件、烧录、资源格式和发布说明
+├── docs/
+│   ├── media/               目标板实拍照片和 H.264 验证视频
+│   └── *.md                 硬件、烧录、资源格式和发布说明
 └── assets/                  本地素材放置说明，不包含原始视频
 ```
 
